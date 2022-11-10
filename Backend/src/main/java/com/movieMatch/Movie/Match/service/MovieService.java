@@ -24,7 +24,7 @@ public class MovieService {
     private String apiUrl;
 
 public List<Movie> getSearchResults(String searchString){
-    String url = apiUrl + searchString + apiKey;
+    String url = apiUrl + apiKey + "&query=" + searchString;
 //    HttpHeaders headers = new HttpHeaders();
 //    headers.add("Authorization", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZTRhYjRmOGVkNGYzZGYxYzg0NTJlYjVhYzc3MjNiZSIsInN1YiI6IjYzNmFiYmEwNGMx"
 //            + "YmIwMDA3ZDI5MDI1ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.LZGGVCRZhPaW5wH2FOvb27A62eV0j1nIjegQkUNsIlU");
@@ -64,7 +64,7 @@ public List<Movie> getSearchResults(String searchString){
 
             // in order to get back just the gif, we have to format this
             // margaret did some investigation to figure this out
-            String movieUrl = "https://api.themoviedb.org/3/search/movie?api_key=" + apiKey + "&query=" + searchString;
+            //String movieUrl = "https://api.themoviedb.org/3/search/movie?api_key=" + apiKey + "&query=" + searchString;
 
             Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
             movieList.add(movie);
