@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,18 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Component
 public class MovieService {
 
     @Value("${movieDatabase.api.key}")
     private String apiKey;
-    @Value("${movieDatabase.api.url")
+    @Value("${movieDatabase.api.url}")
     private String apiUrl;
 
 public List<Movie> getSearchResults(String searchString){
     String url = apiUrl + apiKey + searchString;
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Authorization", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZTRhYjRmOGVkNGYzZGYxYzg0NTJlYjVhYzc3MjNiZSIsInN1YiI6IjYzNmFiYmEwNGMx"
-            + "YmIwMDA3ZDI5MDI1ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.LZGGVCRZhPaW5wH2FOvb27A62eV0j1nIjegQkUNsIlU");
+//    HttpHeaders headers = new HttpHeaders();
+//    headers.add("Authorization", "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZTRhYjRmOGVkNGYzZGYxYzg0NTJlYjVhYzc3MjNiZSIsInN1YiI6IjYzNmFiYmEwNGMx"
+//            + "YmIwMDA3ZDI5MDI1ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.LZGGVCRZhPaW5wH2FOvb27A62eV0j1nIjegQkUNsIlU");
     // class for querying external APIs
     RestTemplate restTemplate = new RestTemplate();
     // because we have to "pick" through the nodes to get our info
@@ -70,7 +72,11 @@ public List<Movie> getSearchResults(String searchString){
         }
 
     } catch (JsonProcessingException e) {
+        System.out.println(response);
+        System.out.println(url);
+        e.getMessage();
         e.printStackTrace();
+        e.getOriginalMessage();
     }
     return movieList;
 }
