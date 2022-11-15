@@ -1,7 +1,7 @@
-package com.movieMatch.Movie.Match.controller;
+package com.techelevator.controller;
 
-import com.movieMatch.Movie.Match.model.Movie;
-import com.movieMatch.Movie.Match.service.MovieService;
+import com.techelevator.model.Movie;
+import com.techelevator.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
