@@ -1,12 +1,10 @@
 package com.techelevator.controller;
 
 import com.techelevator.model.Movie;
+import com.techelevator.model.MovieDetails;
 import com.techelevator.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,8 +16,13 @@ public class MovieController {
     MovieService movieService;
 
     @GetMapping("/movie")
-    public List<Movie> searchMovies(@RequestParam String query){
-        return movieService.getSearchResults(query);
+    public List<Movie> searchMovieTitles(@RequestParam String query){
+        return movieService.getTitleSearchResults(query);
+    }
+
+    @GetMapping("/movie/{id}")
+    public MovieDetails getMovieDetails(@PathVariable String id){
+        return movieService.getMovieDetails(id);
     }
 
 
