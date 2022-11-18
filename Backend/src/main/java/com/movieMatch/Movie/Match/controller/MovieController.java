@@ -18,7 +18,7 @@ public class MovieController {
     MovieService movieService;
 
     @GetMapping("/movie")
-    public List<Movie> returnAllMovies(@RequestParam String query){
+    public List<Movie> searchMovies(@RequestParam String query){
         return movieService.getSearchResults(query);
     }
 
