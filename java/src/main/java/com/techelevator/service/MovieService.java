@@ -3,19 +3,17 @@ package com.techelevator.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.techelevator.model.Movie;
 import com.techelevator.model.MovieDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -81,16 +79,22 @@ public class MovieService {
                 // margaret did some investigation to figure this out
                 String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
 
-                JsonNode genres = root.get("genre_ids");
-//                System.out.println(genres);
-                ArrayNode arrayNode = (ArrayNode)root.get("genre_ids");
-//                for(int j = 0; j < genres.size(); j++) {
 
-                    List<String> genreIds = root.findValuesAsText("genre_ids");
+            //    List<String> genreIds = root.path(i).findValuesAsText("genre_ids");
+
+
+                List<String> genreIds = new ArrayList<>();
+                    for(JsonNode genre : root.path(i).path("genre_ids")){
+                        System.out.println(genre.asText());
+                        genreIds.add(genre.asText());
+                    }
+
+
+
+
 
                 Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
                 movieList.add(movie);
-         //   }
             }
 
         } catch (JsonProcessingException e) {
@@ -119,14 +123,27 @@ public class MovieService {
             String json = objectMapper.writeValueAsString(jsonNode);
 
             String backdropPath = jsonNode.get("backdrop_path").asText();
+
             String genres = jsonNode.get("genres").asText();
+
+            JsonNode genreInfo = jsonNode.get("genres");
+            for(JsonNode genre : genreInfo) {
+                System.out.println(genre);
+            }
+//            List<String> genres = new ArrayList<>();
+//            for(JsonNode genre : jsonNode.get("genres")){
+//                System.out.println(genre.asText());
+//                genres.add(genre.asText());
+//            }
+
             String movieId = jsonNode.get("id").asText();
             String overview = jsonNode.get("overview").asText();
             String posterPath = jsonNode.get("poster_path").asText();
             String releaseDate = jsonNode.get("release_date").asText();
             String runtime = jsonNode.get("runtime").asText();
             String title = jsonNode.get("title").asText();
-            String trailerUrl = jsonNode.get("videos").asText();
+
+            String trailerUrl = jsonNode.get("videos").path("results").path("key").asText();
 
                 String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
 
