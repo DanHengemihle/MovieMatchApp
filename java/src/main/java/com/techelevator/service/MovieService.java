@@ -120,34 +120,25 @@ public class MovieService {
 
         try {  // needed for the objectMapper.readTree method
             jsonNode = objectMapper.readTree(response.getBody());
-            String json = objectMapper.writeValueAsString(jsonNode);
+
 
             String backdropPath = jsonNode.get("backdrop_path").asText();
-
-            String genres = jsonNode.get("genres").asText();
-
-            JsonNode genreInfo = jsonNode.get("genres");
-            for(JsonNode genre : genreInfo) {
-                System.out.println(genre);
-            }
-//            List<String> genres = new ArrayList<>();
-//            for(JsonNode genre : jsonNode.get("genres")){
-//                System.out.println(genre.asText());
-//                genres.add(genre.asText());
-//            }
-
             String movieId = jsonNode.get("id").asText();
             String overview = jsonNode.get("overview").asText();
             String posterPath = jsonNode.get("poster_path").asText();
             String releaseDate = jsonNode.get("release_date").asText();
             String runtime = jsonNode.get("runtime").asText();
             String title = jsonNode.get("title").asText();
+            List<String> trailerUrls = jsonNode.get("videos").findValuesAsText("key");
 
-            String trailerUrl = jsonNode.get("videos").path("results").path("key").asText();
+            List<String> genres = jsonNode.get("genres").findValuesAsText("name");
+            System.out.println(genres);
 
-                String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
+                String movieUrl = "https://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey;
 
-                return new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrl);
+               MovieDetails movie = new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrls);
+            System.out.println(movie);
+            return movie;
 
 
         } catch (JsonProcessingException e) {

@@ -1,22 +1,24 @@
 package com.techelevator.model;
 
+import java.util.List;
+
 public class MovieDetails {
 
     private String backdropPath;
-    private String genres;
+    private List<String> genres;
     private String id;
     private String overview;
     private String posterPath;
     private String releaseDate;
     private String runtime;
     private String title;
-    private String trailerUrl;
+    private List<String> trailerUrl;
 
     public MovieDetails() {
     }
 
-    public MovieDetails(String backdropPath, String genres, String id, String overview, String posterPath, String releaseDate,
-                        String runtime, String title, String trailerUrl) {
+    public MovieDetails(String backdropPath, List<String> genres, String id, String overview, String posterPath, String releaseDate,
+                        String runtime, String title, List<String> trailerUrl) {
         this.backdropPath = backdropPath;
         this.genres = genres;
         this.id = id;
@@ -37,11 +39,11 @@ public class MovieDetails {
         this.backdropPath = backdropPath;
     }
 
-    public String getGenres() {
+    public List<String>Genres() {
         return genres;
     }
 
-    public void setGenres(String genres) {
+    public void setGenres(List<String> genres) {
         this.genres = genres;
     }
 
@@ -93,11 +95,11 @@ public class MovieDetails {
         this.title = title;
     }
 
-    public String getTrailerUrl() {
+    public List<String> getTrailerUrl() {
         return trailerUrl;
     }
 
-    public void setTrailerUrl(String trailerUrl) {
+    public void setTrailerUrl(List<String> trailerUrl) {
         this.trailerUrl = trailerUrl;
     }
 
