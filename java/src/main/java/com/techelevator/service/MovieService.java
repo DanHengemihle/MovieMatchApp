@@ -3,18 +3,14 @@ package com.techelevator.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.techelevator.model.Movie;
 import com.techelevator.model.MovieDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -27,6 +23,9 @@ public class MovieService {
     private String apiKey;
     @Value("${movieDatabase.api.url}")
     private String apiUrl;
+
+    @Value("${youtube.base.url}")
+    private String youtubeBaseUrl;
 
 
 
@@ -46,15 +45,10 @@ public class MovieService {
         ObjectMapper objectMapper = new ObjectMapper();
         // json node object also needed to walk through the response
         JsonNode jsonNode;
-
         // make the call to the api using restTemplate.exchange
         // sends back a response entity object of type String
     ResponseEntity<String> response =
             restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
-//        String response =
-//                restTemplate.getForObject(url, String.class);
-//        System.out.println(response);
-
         // create an empty list of gifs
         List<Movie> movieList = new ArrayList<>();
 
@@ -68,31 +62,19 @@ public class MovieService {
                 String imgUrl = root.path(i).path("poster_path").asText();
                 String overview = root.path(i).path("overview").asText();
                 String releaseDate = root.path(i).path("release_date").asText();
-
-                //GENRE IDS NOT WORKING
-                //int height = root.path("images").path("preview").path("height").asInt();
-
-
-
                 String movieId = root.path(i).path("id").asText();
                 String title = root.path(i).path("title").asText();
                 String backdropImg = root.path(i).path("backdrop_path").asText();
-
-
+                List<String> genreIds = new ArrayList<>();
+                for(JsonNode genre : root.path(i).path("genre_ids")){
+                    genreIds.add(genre.asText());
+                }
                 // in order to get back just the gif, we have to format this
                 // margaret did some investigation to figure this out
                 String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
 
-                JsonNode genres = root.get("genre_ids");
-//                System.out.println(genres);
-                ArrayNode arrayNode = (ArrayNode)root.get("genre_ids");
-//                for(int j = 0; j < genres.size(); j++) {
-
-                    List<String> genreIds = root.findValuesAsText("genre_ids");
-
                 Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
                 movieList.add(movie);
-         //   }
             }
 
         } catch (JsonProcessingException e) {
@@ -108,7 +90,6 @@ public class MovieService {
     public MovieDetails getMovieDetails(String id) {
 
         String url = "http://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey + "&append_to_response=videos";
-
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> httpEntity = new HttpEntity<>("");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -118,22 +99,22 @@ public class MovieService {
 
         try {  // needed for the objectMapper.readTree method
             jsonNode = objectMapper.readTree(response.getBody());
-            String json = objectMapper.writeValueAsString(jsonNode);
-
             String backdropPath = jsonNode.get("backdrop_path").asText();
-            String genres = jsonNode.get("genres").asText();
             String movieId = jsonNode.get("id").asText();
             String overview = jsonNode.get("overview").asText();
             String posterPath = jsonNode.get("poster_path").asText();
             String releaseDate = jsonNode.get("release_date").asText();
             String runtime = jsonNode.get("runtime").asText();
             String title = jsonNode.get("title").asText();
-            String trailerUrl = jsonNode.get("videos").asText();
+            List<String> genres = jsonNode.get("genres").findValuesAsText("name");
+            List<String> trailerUrlKeys = jsonNode.get("videos").findValuesAsText("key");
+            List<String> trailerUrls = new ArrayList<>();
+            for(String trailerUrl : trailerUrlKeys){
+                trailerUrls.add(String.format(youtubeBaseUrl + trailerUrl));
+            }
+            String movieUrl = "https://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey;
 
-                String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
-
-                return new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrl);
-
+               return new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrls);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
