@@ -11,9 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -23,6 +21,9 @@ public class MovieService {
     private String apiKey;
     @Value("${movieDatabase.api.url}")
     private String apiUrl;
+
+    @Value("${youtube.base.url}")
+    private String youtubeBaseUrl;
 
 
 
@@ -42,15 +43,10 @@ public class MovieService {
         ObjectMapper objectMapper = new ObjectMapper();
         // json node object also needed to walk through the response
         JsonNode jsonNode;
-
         // make the call to the api using restTemplate.exchange
         // sends back a response entity object of type String
     ResponseEntity<String> response =
             restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
-//        String response =
-//                restTemplate.getForObject(url, String.class);
-//        System.out.println(response);
-
         // create an empty list of gifs
         List<Movie> movieList = new ArrayList<>();
 
@@ -64,34 +60,16 @@ public class MovieService {
                 String imgUrl = root.path(i).path("poster_path").asText();
                 String overview = root.path(i).path("overview").asText();
                 String releaseDate = root.path(i).path("release_date").asText();
-
-                //GENRE IDS NOT WORKING
-                //int height = root.path("images").path("preview").path("height").asInt();
-
-
-
                 String movieId = root.path(i).path("id").asText();
                 String title = root.path(i).path("title").asText();
                 String backdropImg = root.path(i).path("backdrop_path").asText();
-
-
+                List<String> genreIds = new ArrayList<>();
+                for(JsonNode genre : root.path(i).path("genre_ids")){
+                    genreIds.add(genre.asText());
+                }
                 // in order to get back just the gif, we have to format this
                 // margaret did some investigation to figure this out
                 String movieUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + apiKey;
-
-
-            //    List<String> genreIds = root.path(i).findValuesAsText("genre_ids");
-
-
-                List<String> genreIds = new ArrayList<>();
-                    for(JsonNode genre : root.path(i).path("genre_ids")){
-                        System.out.println(genre.asText());
-                        genreIds.add(genre.asText());
-                    }
-
-
-
-
 
                 Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
                 movieList.add(movie);
@@ -110,7 +88,6 @@ public class MovieService {
     public MovieDetails getMovieDetails(String id) {
 
         String url = "http://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey + "&append_to_response=videos";
-
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<String> httpEntity = new HttpEntity<>("");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -120,8 +97,6 @@ public class MovieService {
 
         try {  // needed for the objectMapper.readTree method
             jsonNode = objectMapper.readTree(response.getBody());
-
-
             String backdropPath = jsonNode.get("backdrop_path").asText();
             String movieId = jsonNode.get("id").asText();
             String overview = jsonNode.get("overview").asText();
@@ -129,17 +104,15 @@ public class MovieService {
             String releaseDate = jsonNode.get("release_date").asText();
             String runtime = jsonNode.get("runtime").asText();
             String title = jsonNode.get("title").asText();
-            List<String> trailerUrls = jsonNode.get("videos").findValuesAsText("key");
-
             List<String> genres = jsonNode.get("genres").findValuesAsText("name");
-            System.out.println(genres);
+            List<String> trailerUrlKeys = jsonNode.get("videos").findValuesAsText("key");
+            List<String> trailerUrls = new ArrayList<>();
+            for(String trailerUrl : trailerUrlKeys){
+                trailerUrls.add(String.format(youtubeBaseUrl + trailerUrl));
+            }
+            String movieUrl = "https://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey;
 
-                String movieUrl = "https://api.themoviedb.org/3/movie/" + id + "?api_key=" + apiKey;
-
-               MovieDetails movie = new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrls);
-            System.out.println(movie);
-            return movie;
-
+               return new MovieDetails(backdropPath, genres, movieId, overview, posterPath, releaseDate, runtime, title, trailerUrls);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();

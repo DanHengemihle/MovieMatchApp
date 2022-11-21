@@ -39,7 +39,7 @@ public class MovieDetails {
         this.backdropPath = backdropPath;
     }
 
-    public List<String>Genres() {
+    public List<String> getGenres() {
         return genres;
     }
 
@@ -107,14 +107,14 @@ public class MovieDetails {
     public String toString() {
         return "MovieDetails{" +
                 "backdropPath='" + backdropPath + '\'' +
-                ", genres='" + genres + '\'' +
+                ", genres=" + genres +
                 ", id='" + id + '\'' +
                 ", overview='" + overview + '\'' +
                 ", posterPath='" + posterPath + '\'' +
                 ", releaseDate='" + releaseDate + '\'' +
                 ", runtime='" + runtime + '\'' +
                 ", title='" + title + '\'' +
-                ", trailerUrl='" + trailerUrl + '\'' +
+                ", trailerUrl=" + trailerUrl +
                 '}';
     }
 }
