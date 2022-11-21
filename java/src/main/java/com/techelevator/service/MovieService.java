@@ -159,15 +159,10 @@ public class MovieService {
                 String title = root.path(i).path("title").asText();
                 String backdropImg = root.path(i).path("backdrop_path").asText();
 
-                JsonNode genres = root.get("genre_ids");
-//                System.out.println(genres);
-                ArrayNode arrayNode = (ArrayNode)root.get("genre_ids");
-//                for(int j = 0; j < genres.size(); j++) {
 
-                List<String> genreIds = root.findValuesAsText("genre_ids");
 
-                Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
-                newMoviesList.add(movie);
+//                Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
+//                newMoviesList.add(movie);
                 //   }
             }
 
