@@ -25,6 +25,11 @@ public class MovieController {
         return movieService.getMovieDetails(id);
     }
 
+    @GetMapping("/newMovies")
+    public List<Movie> getNewMovies() {
+        return movieService.getNewMovies();
+    }
+
 
 
 }

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,7 +141,65 @@ public class MovieService {
         return null;
     }
 
+    public List<Movie> getNewMovies() {
+        List<Movie> newMoviesList = new ArrayList<>();
 
+        LocalDate searchDate = LocalDate.now().minusMonths(1);
+
+        //call api and return only movies that were released in the last month
+        //get current date, subtract one from month, put that in search url
+
+//        String sampleUrl = "https://api.themoviedb.org/3/discover/movie?api_key=1860d7aac96c2d5d65b5d6760a855c9b&sort_by=popularity.desc&include_adult=false&primary_release_date.gte=2022-10-18";
+        String url = "https://api.themoviedb.org/3/discover/movie?api_key=" + apiKey + "&sort_by=popularity.desc&include_adult=false&primary_release_date.gte=" +
+                searchDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> httpEntity = new HttpEntity<>("");
+        ObjectMapper objectMapper = new ObjectMapper();
+        ResponseEntity<String> response =
+                restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+        JsonNode jsonNode;
+
+        try {  // needed for the objectMapper.readTree method
+            jsonNode = objectMapper.readTree(response.getBody());
+            JsonNode root = jsonNode.path("results");
+            for (int i = 0; i < root.size(); i++){
+                String imgUrl = root.path(i).path("poster_path").asText();
+                String overview = root.path(i).path("overview").asText();
+                String releaseDate = root.path(i).path("release_date").asText();
+
+                //GENRE IDS NOT WORKING
+                //int height = root.path("images").path("preview").path("height").asInt();
+
+
+
+                String movieId = root.path(i).path("id").asText();
+                String title = root.path(i).path("title").asText();
+                String backdropImg = root.path(i).path("backdrop_path").asText();
+
+                JsonNode genres = root.get("genre_ids");
+//                System.out.println(genres);
+                ArrayNode arrayNode = (ArrayNode)root.get("genre_ids");
+//                for(int j = 0; j < genres.size(); j++) {
+
+                List<String> genreIds = root.findValuesAsText("genre_ids");
+
+                Movie movie = new Movie(imgUrl, overview, releaseDate, genreIds, movieId, title, backdropImg);
+                newMoviesList.add(movie);
+                //   }
+            }
+
+        } catch (JsonProcessingException e) {
+            System.out.println(response);
+            System.out.println(url);
+            e.getMessage();
+            e.printStackTrace();
+            e.getOriginalMessage();
+        }
+        return newMoviesList;
+
+    }
 
 
 }
